@@ -6,7 +6,7 @@ from collections import Counter
 import streamlit as st
 from langchain.agents import create_agent
 from langchain.tools import tool
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 APP_TITLE = "ResearchPilot"
 SAMPLE_DIR = Path(__file__).parent / "knowledge_base"
@@ -95,7 +95,7 @@ Workflow rules:
 8. The document search is keyword-based, so mention that limitation where relevant.
 """
 
-    llm = ChatOpenAI(model=model_name, temperature=0, api_key=api_key)
+    llm = ChatGoogleGenerativeAI(model=model_name, temperature=0, google_api_key=api_key)
     agent = create_agent(
         model=llm,
         tools=[search_research_materials],
@@ -132,11 +132,11 @@ st.caption("An agentic research assistant that plans sub-questions, searches ref
 with st.sidebar:
     st.header("Configuration")
     api_key = st.text_input(
-        "OpenAI API key",
+        "Gemini API key",
         type="password",
-        help="Used only for this run. Do not paste your key into source code or commit it to GitHub.",
+        help="Free key from https://aistudio.google.com/apikey. Used only for this run. Do not paste your key into source code or commit it to GitHub.",
     )
-    model_name = st.text_input("Model", value="gpt-4.1-mini")
+    model_name = st.text_input("Model", value="gemini-3.8-flash")
     st.divider()
     st.markdown("**Reference collection**")
     st.write("Bundled sample notes are loaded automatically. You can also upload `.txt` or `.md` files.")
@@ -181,8 +181,9 @@ if st.button("Plan and generate report", type="primary", disabled=not question.s
                 st.session_state["last_question"] = question.strip()
             except Exception as exc:
                 st.error(
-                    "The agent could not complete the run. Check your API key, model name, internet connection, "
-                    "and installed package versions. Technical message:"
+                    "The agent could not complete the run. Check your Gemini API key, model name, internet connection, "
+                    "and installed package versions. If you see a 429 / quota error, you have hit the free-tier "
+                    "rate limit: wait a minute or switch the model box to gemini-3.7-flash. Technical message:"
                 )
                 st.code(str(exc))
 
